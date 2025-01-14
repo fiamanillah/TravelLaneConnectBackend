@@ -196,7 +196,6 @@ const updateApplicationById = async (req, res) => {
         // Respond with the updated application data
         res.status(200).json(updatedApplication);
     } catch (error) {
-        console.error('Error updating application:', error);
 
         // Handle invalid MongoDB ObjectId errors
         if (error.kind === 'ObjectId') {
@@ -212,9 +211,7 @@ const uploadSingleFileAndAppendUrl = async (req, res) => {
     const { applicationId } = req.params; // Extract applicationId from request parameters
     const fileData = req.files; // Extract files from the request
 
-    // Log the request body and file for debugging
-    console.log('Request body:', req.body);
-    console.log('Uploaded file:', req.files);
+ 
 
     // Check if FTP client is connected
     if (!ftpClient || !ftpClient.connected) {
