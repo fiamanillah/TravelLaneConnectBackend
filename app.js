@@ -12,6 +12,7 @@ require('./config/mongo');
 // Express setup
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded());
 app.use(
     cors({
         origin: '*', // Specify the frontend URL (localhost or production URL)

@@ -15,16 +15,47 @@ const ApplicationSchema = new mongoose.Schema(
         district: String,
         email: String,
         phone: String,
-        college: String,
-        graduationYear: String,
-        fieldOfStudy: String,
-        referredBy: String,
-        employmentExperience: String,
-        lastWorkPlace: String,
+        college: {
+            type: String,
+            default: 'Not Specified',
+        },
+        graduationYear: {
+            type: String,
+            default: 'Not Specified',
+        },
+        fieldOfStudy: {
+            type: String,
+            default: 'Not Specified',
+        },
+        referredBy: {
+            type: String,
+            default: 'Not Specified',
+        },
+        employmentExperience: {
+            type: String,
+            default: 'Not Specified',
+        },
+        lastWorkPlace: {
+            type: String,
+            default: 'Not Specified',
+        },
         passportPhoto: String,
         nidScan: String,
         passportScan: String,
         signature: String,
+        applicationFormImages: [String],
+        status: {
+            type: String,
+            default: 'Pending',
+        },
+        bodyDetails: {
+            type: String,
+            default: '..',
+        },
+        footerDetails: {
+            type: String,
+            default: '..',
+        },
     },
     { timestamps: true }
 );
