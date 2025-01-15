@@ -13,11 +13,12 @@ require('./config/mongo');
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded());
+// Use CORS once
 app.use(
     cors({
-        origin: '*', // Specify the frontend URL (localhost or production URL)
-        methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
-        allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
+        origin: ['https://travellaneconnect.com','http://localhost:5173', '*'],
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
     })
 );
 
