@@ -11,9 +11,12 @@ require('./config/mongo');
 
 // Express setup
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded());
-// Use CORS once
+
+// Increase payload size limits to avoid 413 errors
+app.use(express.json({ limit: '10mb' })); // Increase JSON payload limit
+app.use(express.urlencoded({ limit: '10mb', extended: true })); // Increase URL-encoded data limit
+
+// Use CORS with proper configuration
 app.use(
     cors({
         origin: (origin, callback) => {
@@ -29,14 +32,18 @@ app.use(
     })
 );
 
+// Handle preflight requests
+app.options('*', cors());
+
 // Routes
 app.use('/api', formRoutes);
 
 app.get('/', (req, res) => {
     res.send('Running');
 });
+
 // Start the server
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000; // Provide a default port if PORT is undefined
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
