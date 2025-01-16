@@ -177,11 +177,22 @@ const uploadSingleFileAndAppendUrl = async (req, res) => {
         }
 
         const sanitizedFileName = sanitizeFilename(file.originalname);
-        const fileLink = `https://res.cloudinary.com/dlkk03hhl/image/upload/v1737004116/travellaneconnect/uploads/${file.path}`;
+        const newFileName = `applicationFormImage_${applicationId}_${sanitizedFileName}`;
 
         // Upload file to Cloudinary
-        await uploadFilesToCloudinary(file, 'applicationFormImage', applicationId);
+        const cloudinaryResult = await cloudinary.uploader.upload(file.path, {
+            public_id: newFileName,
+        });
 
+        // Remove the local file after uploading
+        fs.unlink(file.path, unlinkErr => {
+            if (unlinkErr) console.error(`Failed to delete file: ${file.path}`);
+        });
+
+        // Get the URL of the uploaded file from Cloudinary
+        const fileLink = cloudinaryResult.secure_url;
+
+        // Find the application and update with the new file URL
         const application = await Application.findById(applicationId);
         if (!application) {
             return res.status(404).json({ error: 'Application not found.' });
@@ -191,6 +202,7 @@ const uploadSingleFileAndAppendUrl = async (req, res) => {
             application.applicationFormImages = [];
         }
 
+        // Append the file link to the application
         application.applicationFormImages.push(fileLink);
         await application.save();
 
