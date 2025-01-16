@@ -1,29 +1,39 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const mongoose = require('mongoose');
+const mongoose = require('./config/mongo'); // Importing the MongoDB connection from mongo.js
 
 // Import routes
 const formRoutes = require('./routes/formRoutes');
 
-// MongoDB connection setup
-require('./config/mongo');
-
 // Express setup
 const app = express();
 
+// CORS configuration
 app.use(
     cors({
-        origin: ['https://travellaneconnect.com'],
+        origin: (origin, callback) => {
+            const allowedOrigins = ['https://travellaneconnect.com', 'http://localhost:5173'];
+            if (!origin || allowedOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error(`CORS policy does not allow access from origin ${origin}`));
+            }
+        },
         methods: ['GET', 'POST', 'PUT', 'DELETE'],
-        allowedHeaders: ['Content-Type', 'Authorization'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
         credentials: true,
     })
 );
 
-// Increase payload size limits to avoid 413 errors
-app.use(express.json({ limit: '10mb' })); // Increase JSON payload limit
-app.use(express.urlencoded({ limit: '10mb', extended: true })); // Increase URL-encoded data limit
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+// Debugging middleware
+app.use((req, res, next) => {
+    console.log(`Request Method: ${req.method}, URL: ${req.url}`);
+    next();
+});
 
 // Routes
 app.use('/api', formRoutes);

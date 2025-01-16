@@ -1,6 +1,25 @@
 const mongoose = require('mongoose');
 
-mongoose
-    .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => console.log('MongoDB connection error:', err));
+// MongoDB connection setup with retries
+const connectMongoDB = async () => {
+    try {
+        await mongoose.connect(process.env.MONGO_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            // Add any other mongoose options as needed
+        });
+        console.log('MongoDB connected');
+    } catch (err) {
+        console.error('MongoDB connection error:', err);
+        setTimeout(connectMongoDB, 5000); // Retry after 5 seconds if connection fails
+    }
+};
+
+// Initial MongoDB connection attempt
+connectMongoDB();
+
+// Optionally, handle disconnection or reconnecting
+mongoose.connection.on('disconnected', () => {
+    console.log('MongoDB disconnected. Attempting to reconnect...');
+    connectMongoDB(); // Reconnect when the database connection is lost
+});
