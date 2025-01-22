@@ -56,6 +56,10 @@ const ApplicationSchema = new mongoose.Schema(
             type: String,
             default: '..',
         },
+        payBtnText: {
+            type: String,
+            default: 'Pay Now',
+        },
     },
     { timestamps: true }
 );

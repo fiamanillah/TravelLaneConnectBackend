@@ -11,6 +11,8 @@ const {
     deleteFileFromApplication,
 } = require('../controllers/formController');
 
+const { savePayment, getPayments } = require('../controllers/paymentController');
+
 // Multer configuration
 const upload = multer({ dest: './uploads/' });
 
@@ -51,5 +53,9 @@ router.post(
 );
 
 router.delete('/upload-form-file/:applicationId/delete-file/:fileLink', deleteFileFromApplication);
+
+router.post('/payments', savePayment);
+
+router.get('/payments', getPayments);
 
 module.exports = router;
