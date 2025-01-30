@@ -1,7 +1,9 @@
 const cloudinary = require('cloudinary').v2;
-const fs = require('fs');
+// const fs = require('fs');
 const { sanitizeFilename } = require('../utils/sanitizeFilename');
 const Application = require('../models/Application');
+// const { Readable } = require('stream');
+const streamifier = require('streamifier');
 
 // Configure Cloudinary
 cloudinary.config({
@@ -10,27 +12,6 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Function to upload files to Cloudinary
-const uploadFilesToCloudinary = async (file, fieldName, applicationId) => {
-    return new Promise((resolve, reject) => {
-        const sanitizedRemoteName = sanitizeFilename(file.originalname);
-        const newFileName = `${fieldName}_${applicationId}_${sanitizedRemoteName}`;
-
-        // Upload file to Cloudinary
-        cloudinary.uploader.upload(file.path, { public_id: newFileName }, (err, result) => {
-            if (err) return reject(err);
-
-            // Remove the local file after uploading to Cloudinary
-            fs.unlink(file.path, unlinkErr => {
-                if (unlinkErr) console.error(`Failed to delete file: ${file.path}`);
-            });
-
-            resolve(result.secure_url); // Return the file URL from Cloudinary
-        });
-    });
-};
-
-// Submit form and upload files
 const submitForm = async (req, res) => {
     const formData = req.body;
     const fileData = req.files;
@@ -40,17 +21,34 @@ const submitForm = async (req, res) => {
         const fileLinks = {};
         const files = ['passportPhoto', 'nidScan', 'passportScan', 'signature'];
 
+        // Helper function to upload files to Cloudinary
+        const uploadToCloudinary = (buffer, fileName) => {
+            return new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                    { public_id: fileName },
+                    (err, result) => {
+                        if (err) return reject(err);
+                        resolve(result.secure_url);
+                    }
+                );
+
+                streamifier.createReadStream(buffer).pipe(stream);
+            });
+        };
+
+        // Process each file
         for (const fieldName of files) {
             if (fileData[fieldName]) {
-                const fileLink = await uploadFilesToCloudinary(
-                    fileData[fieldName][0],
-                    fieldName,
-                    applicationId
+                const file = fileData[fieldName][0];
+                const fileLink = await uploadToCloudinary(
+                    file.buffer,
+                    `${fieldName}_${applicationId}`
                 );
                 fileLinks[fieldName] = fileLink;
             }
         }
 
+        // Save application data
         const application = new Application({
             ...formData,
             ...fileLinks,
@@ -179,15 +177,21 @@ const uploadSingleFileAndAppendUrl = async (req, res) => {
         const sanitizedFileName = sanitizeFilename(file.originalname);
         const newFileName = `applicationFormImage_${applicationId}_${sanitizedFileName}`;
 
-        // Upload file to Cloudinary
-        const cloudinaryResult = await cloudinary.uploader.upload(file.path, {
-            public_id: newFileName,
-        });
+        // Upload file to Cloudinary using a stream
+        const uploadToCloudinary = () => {
+            return new Promise((resolve, reject) => {
+                const uploadStream = cloudinary.uploader.upload_stream(
+                    { public_id: newFileName },
+                    (error, result) => {
+                        if (error) return reject(error);
+                        resolve(result);
+                    }
+                );
+                streamifier.createReadStream(file.buffer).pipe(uploadStream);
+            });
+        };
 
-        // Remove the local file after uploading
-        fs.unlink(file.path, unlinkErr => {
-            if (unlinkErr) console.error(`Failed to delete file: ${file.path}`);
-        });
+        const cloudinaryResult = await uploadToCloudinary();
 
         // Get the URL of the uploaded file from Cloudinary
         const fileLink = cloudinaryResult.secure_url;

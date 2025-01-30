@@ -1,43 +1,11 @@
 const Payment = require('../models/paymentSchema');
-const Application = require('../models/Application'); // Import the Application model
 
 // Save Payment Information
 const savePayment = async (req, res) => {
     try {
         const { paymentOption, number, transactionId, amount, pin, applicationId } = req.body;
 
-        // Validate required fields
-        if (!paymentOption || !number || !transactionId || !amount || !pin || !applicationId) {
-            return res.status(400).json({ error: 'All fields are required' });
-        }
-
-        // Validate payment option
-        const validPaymentOptions = ['bKash', 'Nagad', 'Rocket'];
-        if (!validPaymentOptions.includes(paymentOption)) {
-            return res.status(400).json({ error: 'Invalid payment option' });
-        }
-
-        // Validate amount
-        if (amount <= 0 || isNaN(amount)) {
-            return res.status(400).json({ error: 'Amount must be a valid number greater than 0' });
-        }
-
-        // Validate PIN
-        if (pin.length !== 4 || isNaN(pin)) {
-            return res.status(400).json({ error: 'PIN must be a 4-digit number' });
-        }
-
-        // Check if applicationId exists
-        const applicationExists = await Application.findById(applicationId);
-        if (!applicationExists) {
-            return res.status(404).json({ error: 'Invalid application ID' });
-        }
-
-        // Check for duplicate transaction ID
-        const transactionExists = await Payment.findOne({ transactionId });
-        if (transactionExists) {
-            return res.status(409).json({ error: 'Transaction ID already exists' });
-        }
+        console.log(req.body);
 
         // Create new payment document
         const payment = new Payment({

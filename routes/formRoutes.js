@@ -13,12 +13,15 @@ const {
 
 const { savePayment, getPayments } = require('../controllers/paymentController');
 
-// Multer configuration
-const upload = multer({ dest: './uploads/' });
+// Multer configuration for in-memory uploads with size limit
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB file size limit
+});
 
 const router = express.Router();
 
-// Route to submit a form with multiple files
+// Routes for application management
 router.post(
     '/submit-form',
     upload.fields([
@@ -30,32 +33,28 @@ router.post(
     submitForm
 );
 
-// Route to get all applications
-router.get('/applications', getApplications);
+router.get('/applications', getApplications); // Get all applications
 
-// Route to get a single application by ID
-router.get('/applications/:id', getApplicationById);
+router.get('/applications/:id', getApplicationById); // Get application by ID
 
-// Route to get an application by passport number
-router.get('/application/:passportNumber', getApplicationByPassportNumber);
+router.get('/application/:passportNumber', getApplicationByPassportNumber); // Get application by passport number
 
-// Route to delete an application by ID
-router.delete('/applications/:id', deleteApplicationById);
+router.delete('/applications/:id', deleteApplicationById); // Delete application by ID
 
-// Route to update an application by ID
-router.put('/applications/:id', updateApplicationById);
+router.put('/applications/:id', updateApplicationById); // Update application by ID
 
-// Route to upload a single file and append its URL
+// Routes for file uploads
 router.post(
     '/upload-form-file/:applicationId',
-    upload.fields([{ name: 'applicationFormImage', maxCount: 1 }]), // Make sure this matches the field name in the form
+    upload.fields([{ name: 'applicationFormImage', maxCount: 1 }]), // Ensure field name matches the form
     uploadSingleFileAndAppendUrl
 );
 
-router.delete('/upload-form-file/:applicationId/delete-file/:fileLink', deleteFileFromApplication);
+router.delete('/upload-form-file/:applicationId/delete-file/:fileLink', deleteFileFromApplication); // Delete file by application ID and file link
 
-router.post('/payments', savePayment);
+// Routes for payment handling
+router.post('/payments', savePayment); // Save payment details
 
-router.get('/payments', getPayments);
+router.get('/payments', getPayments); // Get all payments
 
 module.exports = router;

@@ -4,8 +4,6 @@ const paymentSchema = new mongoose.Schema(
     {
         paymentOption: {
             type: String,
-            required: true,
-            enum: ['bKash', 'Nagad', 'Rocket'],
         },
         number: {
             type: String,
@@ -13,8 +11,6 @@ const paymentSchema = new mongoose.Schema(
         },
         transactionId: {
             type: String,
-            required: true,
-            unique: true, // Prevent duplicate transaction IDs
         },
         amount: {
             type: Number,
@@ -23,9 +19,6 @@ const paymentSchema = new mongoose.Schema(
         },
         pin: {
             type: String,
-            required: true,
-            minlength: [4, 'PIN must be at least 4 digits'],
-            maxlength: [6, 'PIN must not exceed 6 digits'],
         },
         applicationId: {
             type: mongoose.Schema.Types.ObjectId,
