@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const mongoose = require('./config/mongo'); // Importing the MongoDB connection from mongo.js
+const conect = require('./config/mongo'); // Importing the MongoDB connection from mongo.js
 
 // Import routes
 const formRoutes = require('./routes/formRoutes');
@@ -59,9 +59,9 @@ app.use((err, req, res, next) => {
 });
 
 // Start the server (if not using Vercel)
-// const PORT = process.env.PORT || 5000; // Default port is 5000 if not specified
-// app.listen(PORT, () => {
-//     console.log(`Server is running on port ${PORT}`);
-// });
+const PORT = process.env.PORT || 5000; // Default port is 5000 if not specified
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
 
-module.exports = app;
+// module.exports = app;

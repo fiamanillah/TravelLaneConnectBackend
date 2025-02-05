@@ -16,7 +16,7 @@ const { savePayment, getPayments } = require('../controllers/paymentController')
 // Multer configuration for in-memory uploads with size limit
 const upload = multer({
     storage: multer.memoryStorage(),
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB file size limit
+    limits: { fileSize: 50 * 1024 * 1024 }, // 5MB file size limit
 });
 
 const router = express.Router();
